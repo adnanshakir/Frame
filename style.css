@@ -16,7 +16,7 @@ body {
 }
 
 /* Toolbar */
-.toolbar {
+header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,7 +24,6 @@ body {
   padding: 8px;
   background: #1a1a1a;
   border-bottom: 1px solid #333;
-  font-weight: 600;
 }
 
 /* Layout */
