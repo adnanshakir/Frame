@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Figma-Style Editor</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- Top Toolbar -->
+    <header class="toolbar">
+        Frame
+    </header>
+
+    <!-- Main Layout -->
+    <main class="editor">
+
+        <!-- Layers Panel -->
+        <aside class="panel layers">
+            <h3>Layers</h3>
+            <ul id="layers-list"></ul>
+        </aside>
+
+        <!-- Canvas -->
+        <section class="canvas-wrapper">
+            <div id="canvas"></div>
+
+            <div class="dock">
+                <button id="tool-select">Select</button>
+                <span class="dock-divider"></span>
+                <button id="add-rect">Rectangle</button>
+                <button id="add-circle">Circle</button>
+                <button id="add-text">Text</button>
+                <span class="dock-divider"></span>
+                <button id="duplicate">Duplicate</button>
+                <button id="delete">Delete</button>
+            </div>
+        </section>
+
+
+        <!-- Properties Panel -->
+        <aside class="panel properties">
+            <h3>Properties</h3>
+
+            <label>
+                Width
+                <input type="number" id="prop-width" />
+            </label>
+
+            <label>
+                Corner
+                <input type="number" id="prop-corner" />
+            </label>
+
+            <label>
+                Height
+                <input type="number" id="prop-height" />
+            </label>
+
+            <label>
+                Background
+                <input type="color" id="prop-bg" />
+            </label>
+
+            <label id="text-prop">
+                Text
+                <input type="text" id="prop-text" />
+            </label>
+        </aside>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
