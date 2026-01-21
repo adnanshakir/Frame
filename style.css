@@ -99,11 +99,13 @@ header {
 
 #canvas {
   position: relative;
-  width: 900px;
-  height: 600px;
+ width: 56rem;   /* 900 ÷ 16 */
+height: 37rem;  /* 600 ÷ 16 */
   background: #fff;
   overflow: hidden;
-  box-shadow:0 0 0 1px #ddd,0 12px 30px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 0 1px #ddd,
+    0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
 /* Dock container */
