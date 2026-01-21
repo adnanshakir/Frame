@@ -328,3 +328,67 @@ window.addEventListener("mouseup", () => {
   isResizing = false;
   resizeCorner = null;
 });
+
+function duplicateSelected() {
+  const el = getSelectedElement();
+  if (!el) return;
+
+  const OFFSET = 20;
+  const canvasW = canvas.clientWidth;
+  const canvasH = canvas.clientHeight;
+
+  const copy = {
+    ...el,
+    id: generateId(),
+    x: Math.min(el.x + OFFSET, canvasW - el.width),
+    y: Math.min(el.y + OFFSET, canvasH - el.height)
+  };
+
+  elements.push(copy);
+  selectedId = copy.id;
+  renderElements();
+  updateDockState(selectedId);
+}
+
+function deleteSelected() {
+  if (!selectedId) return;
+
+  elements = elements.filter(el => el.id !== selectedId);
+  selectedId = null;
+  renderElements();
+  updateDockState(selectedId);
+}
+
+// Keyboard shortcuts
+
+btnDuplicate.addEventListener("click", duplicateSelected);
+btnDelete.addEventListener("click", deleteSelected);
+
+window.addEventListener("keydown", (e) => {
+  const MOVE_STEP = 10;
+
+  if (e.key === "Delete" && selectedId) {
+    deleteSelected();
+  } else if (e.key === "Escape" && selectedId) {
+    selectedId = null;
+    updateDockState(selectedId);
+  } else if (e.key.toLowerCase() === "d" && e.shiftKey && e.altKey && selectedId){
+    duplicateSelected();
+  } else if (e.key === "ArrowUp" && selectedId) {
+    const el = getSelectedElement();
+    el.y = Math.max(0, el.y - MOVE_STEP);
+    renderElements();
+  } else if (e.key === "ArrowDown" && selectedId) {
+    const el = getSelectedElement();
+    el.y = Math.min(canvas.clientHeight - el.height, el.y + MOVE_STEP);
+    renderElements();
+  } else if (e.key === "ArrowLeft" && selectedId) {
+    const el = getSelectedElement();
+    el.x = Math.max(0, el.x - MOVE_STEP);
+    renderElements();
+  } else if (e.key === "ArrowRight" && selectedId) {
+    const el = getSelectedElement();
+    el.x = Math.min(canvas.clientWidth - el.width, el.x + MOVE_STEP);
+    renderElements();
+  }
+});
