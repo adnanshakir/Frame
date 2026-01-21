@@ -49,12 +49,6 @@ function updateDockState(selected) {
     .forEach((btn) => btn.classList.toggle("disabled", !selected));
 }
 
-/* Canvas settings */
-
-propBg.addEventListener("change", (e) => {
-  canvas.style.backgroundColor = e.target.value;
-});
-
 // Element Creation
 
 btnRect.addEventListener("click", () => {
@@ -68,7 +62,6 @@ btnRect.addEventListener("click", () => {
     background: "lightblue",
     rotation: 0,
   });
-  // console.log(elements);
   renderElements();
 });
 
@@ -84,7 +77,6 @@ btnCircle.addEventListener("click", () => {
     rotation: 0,
     borderRadius: "50%", // circle metadata
   });
-  //  console.log(elements);
   renderElements();
 });
 
@@ -103,6 +95,19 @@ btnText.addEventListener("click", () => {
   });
   //  console.log(elements);
   renderElements();
+});
+
+/* Canvas settings */
+
+propBg.addEventListener("change", (e) => {
+  const el = getSelectedElement();
+
+  if (el) {
+    el.background = e.target.value;
+    renderElements();
+  } else {
+    canvas.style.backgroundColor = e.target.value;
+  }
 });
 
 //  Render elements to canvas
@@ -130,7 +135,7 @@ function renderElements() {
 
     // Shape
     if (el.type === "circle") {
-      div.style.borderRadius = "50%";
+      div.style.borderRadius = "100%";
     }
 
     // Text
@@ -145,6 +150,20 @@ function renderElements() {
     // Selection state
     if (el.id === selectedId) {
       div.classList.add("selected");
+    }
+
+    // Resize handler
+
+    if (el.id === selectedId) {
+      div.classList.add("selected");
+
+      const handles = ["tl", "tr", "bl", "br"];
+
+      handles.forEach((pos) => {
+        const handle = document.createElement("div");
+        handle.classList.add("handle", pos);
+        div.appendChild(handle);
+      });
     }
 
     canvas.appendChild(div);
@@ -167,64 +186,145 @@ canvas.addEventListener("click", (e) => {
   }
 });
 
-// Draging
+// Draging & resizing
 
+let isResizing = false;
 let isDragging = false;
+let resizeCorner = null;
+
+let resizeStart = {
+  mouseX: 0,
+  mouseY: 0,
+  elX: 0,
+  elY: 0,
+  width: 0,
+  height: 0,
+  corner: null,
+};
 
 let dragStart = {
   mouseX: 0,
   mouseY: 0,
   elX: 0,
-  elY: 0
+  elY: 0,
 };
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-
 canvas.addEventListener("mousedown", (e) => {
+  // RESIZE START
+  if (e.target.classList.contains("handle")) {
+    isResizing = true;
+    isDragging = false;
+
+    if (e.target.classList.contains("tl")) resizeCorner = "tl";
+    else if (e.target.classList.contains("tr")) resizeCorner = "tr";
+    else if (e.target.classList.contains("bl")) resizeCorner = "bl";
+    else if (e.target.classList.contains("br")) resizeCorner = "br";
+
+    const el = getSelectedElement();
+
+    resizeStart.mouseX = e.clientX;
+    resizeStart.mouseY = e.clientY;
+    resizeStart.elX = el.x;
+    resizeStart.elY = el.y;
+    resizeStart.width = el.width;
+    resizeStart.height = el.height;
+
+    e.stopPropagation();
+    return;
+  }
+
+  // DRAG START
   if (
     e.target.classList.contains("element") &&
     e.target.dataset.id === selectedId
   ) {
     isDragging = true;
+    isResizing = false;
 
     const el = getSelectedElement();
 
     dragStart.mouseX = e.clientX;
     dragStart.mouseY = e.clientY;
-
     dragStart.elX = el.x;
     dragStart.elY = el.y;
   }
 });
 
-
 canvas.addEventListener("mousemove", (e) => {
-  if (!isDragging) return;
+  // RESIZE
+  if (isResizing) {
+    const el = getSelectedElement();
 
-  const dx = e.clientX - dragStart.mouseX;
-  const dy = e.clientY - dragStart.mouseY;
+    const dx = e.clientX - resizeStart.mouseX;
+    const dy = e.clientY - resizeStart.mouseY;
 
-  const el = getSelectedElement();
+    let newX = resizeStart.elX;
+    let newY = resizeStart.elY;
+    let newWidth = resizeStart.width;
+    let newHeight = resizeStart.height;
 
-  let newX = dragStart.elX + dx;
-  let newY = dragStart.elY + dy;
+    if (resizeCorner === "tl") {
+      newWidth -= dx;
+      newHeight -= dy;
+      newX += dx;
+      newY += dy;
+    } else if (resizeCorner === "tr") {
+      newWidth += dx;
+      newHeight -= dy;
+      newY += dy;
+    } else if (resizeCorner === "bl") {
+      newWidth -= dx;
+      newHeight += dy;
+      newX += dx;
+    } else if (resizeCorner === "br") {
+      newWidth += dx;
+      newHeight += dy;
+    }
 
-  const canvasW = canvas.clientWidth;
-  const canvasH = canvas.clientHeight;
+    newWidth = Math.max(newWidth, 20);
+    newHeight = Math.max(newHeight, 20);
 
-  newX = clamp(newX, 0, canvasW - el.width);
-  newY = clamp(newY, 0, canvasH - el.height);
+    const canvasW = canvas.clientWidth;
+    const canvasH = canvas.clientHeight;
 
-  el.x = newX;
-  el.y = newY;
+    newX = clamp(newX, 0, canvasW - newWidth);
+    newY = clamp(newY, 0, canvasH - newHeight);
 
-  renderElements();
+    el.x = newX;
+    el.y = newY;
+    el.width = newWidth;
+    el.height = newHeight;
+
+    renderElements();
+    return;
+  }
+
+  // DRAG
+  if (isDragging) {
+    const dx = e.clientX - dragStart.mouseX;
+    const dy = e.clientY - dragStart.mouseY;
+
+    const el = getSelectedElement();
+
+    let newX = dragStart.elX + dx;
+    let newY = dragStart.elY + dy;
+
+    const canvasW = canvas.clientWidth;
+    const canvasH = canvas.clientHeight;
+
+    el.x = clamp(newX, 0, canvasW - el.width);
+    el.y = clamp(newY, 0, canvasH - el.height);
+
+    renderElements();
+  }
 });
-
 
 window.addEventListener("mouseup", () => {
   isDragging = false;
+  isResizing = false;
+  resizeCorner = null;
 });
