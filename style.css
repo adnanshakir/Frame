@@ -214,3 +214,10 @@ height: 37rem;  /* 600 ÷ 16 */
   padding: 4px;
   margin-top: 4px;
 }
+
+.layer-item {
+  font-size: 13px;
+  color: #ddd;
+  padding: 8px;
+  border-radius: 4px;
+}

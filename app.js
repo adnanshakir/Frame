@@ -52,36 +52,42 @@ function updateDockState(selected) {
 // Element Creation
 
 btnRect.addEventListener("click", () => {
-  elements.push({
+  const newElement = {
     id: generateId(),
     type: "rect",
     x: 200,
     y: 50,
     width: 120,
     height: 80,
-    background: "lightblue",
+    background: "#3e5050",
     rotation: 0,
-  });
+  };
+
+  elements.push(newElement);
   renderElements();
+  renderLayers();
 });
 
 btnCircle.addEventListener("click", () => {
-  elements.push({
+  const newElement = {
     id: generateId(),
     type: "circle",
     x: 60,
     y: 50,
     width: 100,
     height: 100,
-    background: "#1e1e",
+    background: "#80ec22",
     rotation: 0,
-    borderRadius: "50%", // circle metadata
-  });
+    borderRadius: "50%",
+  };
+
+  elements.push(newElement);
   renderElements();
+  renderLayers();
 });
 
 btnText.addEventListener("click", () => {
-  elements.push({
+  const newElement = {
     id: generateId(),
     type: "text",
     x: 70,
@@ -92,9 +98,11 @@ btnText.addEventListener("click", () => {
     text: "Text",
     rotation: 0,
     color: "black",
-  });
-  //  console.log(elements);
+  };
+
+  elements.push(newElement);
   renderElements();
+  renderLayers();
 });
 
 /* Canvas settings */
@@ -150,6 +158,7 @@ function renderElements() {
     // Selection state
     if (el.id === selectedId) {
       div.classList.add("selected");
+      syncProperties();
     }
 
     // Resize handler
@@ -341,22 +350,26 @@ function duplicateSelected() {
     ...el,
     id: generateId(),
     x: Math.min(el.x + OFFSET, canvasW - el.width),
-    y: Math.min(el.y + OFFSET, canvasH - el.height)
+    y: Math.min(el.y + OFFSET, canvasH - el.height),
   };
 
   elements.push(copy);
   selectedId = copy.id;
   renderElements();
+  renderLayers();
   updateDockState(selectedId);
+  syncProperties();
 }
 
 function deleteSelected() {
   if (!selectedId) return;
 
-  elements = elements.filter(el => el.id !== selectedId);
+  elements = elements.filter((el) => el.id !== selectedId);
   selectedId = null;
   renderElements();
   updateDockState(selectedId);
+  renderLayers();
+  syncProperties();
 }
 
 // Keyboard shortcuts
@@ -365,30 +378,162 @@ btnDuplicate.addEventListener("click", duplicateSelected);
 btnDelete.addEventListener("click", deleteSelected);
 
 window.addEventListener("keydown", (e) => {
+  const isLayersFocused = document.activeElement.closest(".layers");
+
+  if (!selectedId) return;
+
+  // prevent page scroll for arrows
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  // LAYERS CONTEXT
+  if (isLayersFocused) {
+    if (e.key === "ArrowUp") moveLayerUp();
+    if (e.key === "ArrowDown") moveLayerDown();
+    return;
+  }
+
+  // CANVAS CONTEXT
   const MOVE_STEP = 10;
 
-  if (e.key === "Delete" && selectedId) {
+  if (e.key === "Delete") {
     deleteSelected();
-  } else if (e.key === "Escape" && selectedId) {
+  } else if (e.key === "Escape") {
     selectedId = null;
     updateDockState(selectedId);
-  } else if (e.key.toLowerCase() === "d" && e.shiftKey && e.altKey && selectedId){
+    renderElements();
+    renderLayers();
+    syncProperties();
+  } else if (e.key.toLowerCase() === "d" && e.shiftKey && e.altKey) {
     duplicateSelected();
-  } else if (e.key === "ArrowUp" && selectedId) {
+  } else if (e.key === "ArrowUp") {
     const el = getSelectedElement();
     el.y = Math.max(0, el.y - MOVE_STEP);
     renderElements();
-  } else if (e.key === "ArrowDown" && selectedId) {
+  } else if (e.key === "ArrowDown") {
     const el = getSelectedElement();
     el.y = Math.min(canvas.clientHeight - el.height, el.y + MOVE_STEP);
     renderElements();
-  } else if (e.key === "ArrowLeft" && selectedId) {
+  } else if (e.key === "ArrowLeft") {
     const el = getSelectedElement();
     el.x = Math.max(0, el.x - MOVE_STEP);
     renderElements();
-  } else if (e.key === "ArrowRight" && selectedId) {
+  } else if (e.key === "ArrowRight") {
     const el = getSelectedElement();
     el.x = Math.min(canvas.clientWidth - el.width, el.x + MOVE_STEP);
     renderElements();
   }
 });
+
+// Layers panel and its Properties
+
+function renderLayers() {
+  layersList.innerHTML = "";
+
+  [...elements].reverse().forEach((el) => {
+    const li = document.createElement("li");
+    li.textContent = `${el.type.charAt(0).toUpperCase() + el.type.slice(1)}`;
+    li.classList.add("layer-item");
+    li.dataset.id = el.id;
+    li.classList.toggle("active", el.id === selectedId);
+
+    layersList.appendChild(li);
+  });
+}
+
+layersList.addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return;
+
+  selectedId = li.dataset.id;
+  renderElements();
+  updateDockState(selectedId);
+  renderLayers();
+  syncProperties();
+});
+
+function moveLayerUp() {
+  if (!selectedId) return;
+
+  const i = elements.findIndex((el) => el.id === selectedId);
+  if (i < elements.length - 1) {
+    [elements[i], elements[i + 1]] = [elements[i + 1], elements[i]];
+  }
+
+  renderElements();
+  renderLayers();
+}
+
+function moveLayerDown() {
+  if (!selectedId) return;
+
+  const i = elements.findIndex((el) => el.id === selectedId);
+  if (i > 0) {
+    [elements[i], elements[i - 1]] = [elements[i - 1], elements[i]];
+  }
+
+  renderElements();
+  renderLayers();
+}
+
+function syncProperties() {
+  const el = getSelectedElement();
+
+  if (!el) {
+    propWidth.value = "";
+    propHeight.value = "";
+    propBg.value = "#000000";
+    propText.value = "";
+    propText.disabled = true;
+    return;
+  }
+
+  propWidth.value = el.width;
+  propHeight.value = el.height;
+  propBg.value = el.background || "#000000";
+
+  if (el.type === "text") {
+    propText.value = el.text;
+    propText.disabled = false;
+  } else {
+    propText.value = "";
+    propText.disabled = true;
+  }
+}
+
+
+propWidth.addEventListener("input", e => {
+  const el = getSelectedElement();
+  if (!el) return;
+
+  const MIN_SIZE = 20;
+  const maxW = canvas.clientWidth - el.x;
+
+  el.width = clamp(Number(e.target.value), MIN_SIZE, maxW);
+  renderElements();
+});
+
+
+propHeight.addEventListener("input", e => {
+  const el = getSelectedElement();
+  if (!el) return;
+
+  const MIN_SIZE = 20;
+  const maxH = canvas.clientHeight - el.y;
+
+  el.height = clamp(Number(e.target.value), MIN_SIZE, maxH);
+  renderElements();
+});
+
+
+propText.addEventListener("input", e => {
+  const el = getSelectedElement();
+  if (!el || el.type !== "text") return;
+  el.text = e.target.value;
+  renderElements();
+});
+
+
+
+renderLayers();
