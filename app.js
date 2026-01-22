@@ -11,6 +11,7 @@ const btnDelete = document.getElementById("delete");
 const btnExportJson = document.getElementById("export-json");
 const btnExportHtml = document.getElementById("export-html");
 
+
 /* Layers panel */
 const layersList = document.getElementById("layers-list");
 
@@ -34,6 +35,37 @@ let elements = [];
 let selectedId = null;
 let activeTool = "select";
 let idCounter = 0;
+
+// Info / Shortcuts toggle
+const SHORTCUTS_SEEN_KEY = "shortcuts_seen";
+
+const infoBtn = document.getElementById("info-btn");
+const shortcuts = document.getElementById("shortcuts");
+const overlay = document.getElementById("overlay");
+
+// stop pulse if already seen
+if (localStorage.getItem(SHORTCUTS_SEEN_KEY)) {
+  infoBtn.classList.remove("pulse");
+}
+
+infoBtn.addEventListener("click", () => {
+  shortcuts.classList.toggle("hidden");
+  overlay.classList.toggle("hidden");
+
+  // mark as seen on first open
+  if (!localStorage.getItem(SHORTCUTS_SEEN_KEY)) {
+    localStorage.setItem(SHORTCUTS_SEEN_KEY, "true");
+    infoBtn.classList.remove("pulse");
+  }
+});
+
+overlay.addEventListener("click", closeShortcuts);
+
+function closeShortcuts() {
+  shortcuts.classList.add("hidden");
+  overlay.classList.add("hidden");
+}
+
 
 /* Helpers*/
 

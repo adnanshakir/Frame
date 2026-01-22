@@ -142,6 +142,19 @@ header h6 a:hover {
 }
 
 /* Dock container */
+.dock-wrap {
+  position: absolute;
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dock {
+  position: relative;
+}
 .dock {
   position: absolute;
   bottom: 2%;
@@ -223,6 +236,96 @@ header h6 a:hover {
 .export button:active {
   background: #1a1a1a;
 }
+
+/* Info button */
+.info-btn {
+  position: absolute;
+  bottom: 2%;
+  left: calc(50% + 260px); /* offset from dock */
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #2a2a2a;
+  color: #ddd;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.info-btn:hover {
+  background: #262626;
+}
+
+/* Shortcuts popup */
+.shortcuts {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #ddd;
+  backdrop-filter: blur(6px);
+  min-width: 220px;
+  z-index: 6;
+  min-width: 280px;
+  padding: 16px 18px;
+  font-size: 13px;
+}
+
+.shortcuts h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.shortcuts ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shortcuts li {
+  margin-bottom: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+.info-btn {
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.info-btn.pulse {
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(77, 163, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(77, 163, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(77, 163, 255, 0);
+  }
+}
+
+
+
 
 
 /* Elements */

@@ -30,7 +30,8 @@
             <div id="canvas"></div>
 
             <!-- Bottom tool dock -->
-            <div class="dock">
+           <div id="dock-wrap">
+             <div class="dock">
                 <button id="tool-select">Select</button>
                 <span class="dock-divider"></span>
 
@@ -44,11 +45,29 @@
                 <button id="delete">Delete</button>
             </div>
 
+            <!-- Info button -->
+            <button class="info-btn pulse" id="info-btn">i</button>
+           </div>
+
+            <!-- Shortcuts panel -->
+            <div class="shortcuts hidden" id="shortcuts">
+                <h4>Keyboard Shortcuts</h4>
+                <ul>
+                    <li><b>Shift + Alt + D</b> — Duplicate</li>
+                    <li><b>Delete</b> — Delete element</li>
+                    <li><b>Arrow Keys</b> — Move element</li>
+                    <li><b>Esc</b> — Deselect</li>
+                </ul>
+            </div>
+
+
             <!-- Export (top-right, separate) -->
             <div class="export">
                 <button id="export-json">Export JSON</button>
                 <button id="export-html">Export HTML</button>
             </div>
+            <div class="overlay hidden" id="overlay"></div>
+
         </section>
 
 
