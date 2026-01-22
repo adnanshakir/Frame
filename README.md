@@ -14,6 +14,10 @@ The goal of this project is to demonstrate core editor concepts such as **DOM ma
 - Save & load layout using `localStorage`
 - Export design as JSON or basic HTML
 
+## Image
+<img width="1918" height="978" alt="image" src="https://github.com/user-attachments/assets/9ec12479-f620-4ffe-b1e4-9543b82d319b" />
+
+
 ## Tech Stack
 - HTML
 - CSS
