@@ -8,6 +8,8 @@ const btnCircle = document.getElementById("add-circle");
 const btnText = document.getElementById("add-text");
 const btnDuplicate = document.getElementById("duplicate");
 const btnDelete = document.getElementById("delete");
+const btnExportJson = document.getElementById("export-json");
+const btnExportHtml = document.getElementById("export-html");
 
 /* Layers panel */
 const layersList = document.getElementById("layers-list");
@@ -18,6 +20,8 @@ const propWidth = document.getElementById("prop-width");
 const propHeight = document.getElementById("prop-height");
 const propCorner = document.getElementById("prop-corner");
 const propBg = document.getElementById("prop-bg");
+const propBgLabel = document.getElementById("prop-label");
+const propRotate = document.getElementById("prop-rotate");
 
 /* Text-only property (shown only when a text element is selected) */
 
@@ -107,15 +111,21 @@ btnText.addEventListener("click", () => {
 
 /* Canvas settings */
 
-propBg.addEventListener("change", (e) => {
+propBg.addEventListener("input", (e) => {
   const el = getSelectedElement();
 
-  if (el) {
-    el.background = e.target.value;
-    renderElements();
-  } else {
+  if (!el) {
     canvas.style.backgroundColor = e.target.value;
+    return;
   }
+
+  if (el.type === "text") {
+    el.color = e.target.value; // text color
+  } else {
+    el.background = e.target.value; // shape background
+  }
+
+  renderElements();
 });
 
 //  Render elements to canvas
@@ -161,6 +171,9 @@ function renderElements() {
       syncProperties();
     }
 
+    // Rotation handle
+    div.style.transform = `rotate(${el.rotation}deg)`;
+
     // Resize handler
 
     if (el.id === selectedId) {
@@ -174,7 +187,8 @@ function renderElements() {
         div.appendChild(handle);
       });
     }
-
+    syncProperties();
+    saveLayout();
     canvas.appendChild(div);
   });
 }
@@ -480,18 +494,31 @@ function moveLayerDown() {
 function syncProperties() {
   const el = getSelectedElement();
 
+  // NO SELECTION
   if (!el) {
     propWidth.value = "";
     propHeight.value = "";
     propBg.value = "#000000";
     propText.value = "";
     propText.disabled = true;
+
+    propRotate.value = 0;
+    propRotate.disabled = true;
+
+    propWidth.disabled = true;
+    propHeight.disabled = true;
     return;
   }
+
+  // ✅ SELECTION EXISTS (THIS WAS MISSING)
+  propWidth.disabled = false;
+  propHeight.disabled = false;
+  propRotate.disabled = false;
 
   propWidth.value = el.width;
   propHeight.value = el.height;
   propBg.value = el.background || "#000000";
+  propRotate.value = el.rotation || 0;
 
   if (el.type === "text") {
     propText.value = el.text;
@@ -502,8 +529,7 @@ function syncProperties() {
   }
 }
 
-
-propWidth.addEventListener("input", e => {
+propWidth.addEventListener("input", (e) => {
   const el = getSelectedElement();
   if (!el) return;
 
@@ -514,8 +540,7 @@ propWidth.addEventListener("input", e => {
   renderElements();
 });
 
-
-propHeight.addEventListener("input", e => {
+propHeight.addEventListener("input", (e) => {
   const el = getSelectedElement();
   if (!el) return;
 
@@ -526,14 +551,117 @@ propHeight.addEventListener("input", e => {
   renderElements();
 });
 
-
-propText.addEventListener("input", e => {
+propText.addEventListener("input", (e) => {
   const el = getSelectedElement();
   if (!el || el.type !== "text") return;
   el.text = e.target.value;
   renderElements();
 });
 
+propRotate.addEventListener("input", (e) => {
+  const el = getSelectedElement();
+  if (!el) return;
 
+  el.rotation = Number(e.target.value) || 0;
+  renderElements();
+});
 
-renderLayers();
+function saveLayout() {
+  localStorage.setItem("frame_layout", JSON.stringify(elements));
+}
+
+function loadLayout() {
+  const data = localStorage.getItem("frame_layout");
+  if (!data) return;
+
+  elements = JSON.parse(data);
+  selectedId = null;
+  renderElements();
+  renderLayers();
+  syncProperties();
+}
+
+function exportJSON() {
+  const data = JSON.stringify(elements, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "frame-layout.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+btnExportJson.addEventListener("click", exportJSON);
+
+function exportHTML() {
+  let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Frame Export</title>
+<style>
+  body { margin: 0; background: #f0f0f0; }
+  .canvas {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 40px auto;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+`;
+
+  elements.forEach((el) => {
+    let styles = `
+      position:absolute;
+      left:${el.x}px;
+      top:${el.y}px;
+      width:${el.width}px;
+      height:${el.height}px;
+      transform:rotate(${el.rotation}deg);
+    `;
+
+    if (el.type === "text") {
+      styles += `
+        background:transparent;
+        color:${el.color || "#000"};
+        white-space:pre-wrap;
+      `;
+      html += `<div style="${styles}">${el.text}</div>`;
+    } else {
+      styles += `
+        background:${el.background};
+        ${el.type === "circle" ? "border-radius:50%;" : ""}
+      `;
+      html += `<div style="${styles}"></div>`;
+    }
+  });
+
+  html += `
+</div>
+</body>
+</html>
+`;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "frame-export.html";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+btnExportHtml.addEventListener("click", exportHTML);
+
+// init
+loadLayout();

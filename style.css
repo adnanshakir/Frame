@@ -26,12 +26,31 @@ header {
 }
 
 header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: baseline;
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 0.6px;
   color: rgba(255, 255, 255, 0.9);
 }
 
+header h6 {
+  /* font-size: 14px; */
+  margin-top: 7px;
+  margin-left: 6px;
+  color: #bbbbbb82;
+}
+
+header h6 a {
+  text-decoration: none;
+  color: #bbbbbb82;
+}
+
+header h6 a:hover {
+  text-decoration: underline;
+  color: #bbbbbb;
+}
 
 /* Layout */
 .editor {
@@ -79,6 +98,13 @@ header h1 {
   box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.2);
 }
 
+.panel input[type="color"] {
+  padding: 2px;          /* keep it compact */
+  height: 32px;          /* similar to other inputs */
+  background: #1f1f1f;   /* same bg as others */
+}
+
+
 /* Layers */
 .layers ul {
   list-style: none;
@@ -106,8 +132,8 @@ header h1 {
 
 #canvas {
   position: relative;
- width: 56rem;   /* 900 ÷ 16 */
-height: 37rem;  /* 600 ÷ 16 */
+  width: 56rem; /* 900 ÷ 16 */
+  height: 37rem; /* 600 ÷ 16 */
   background: #fff;
   overflow: hidden;
   box-shadow:
@@ -162,10 +188,49 @@ height: 37rem;  /* 600 ÷ 16 */
   pointer-events: none;
 }
 
+.export {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 0.6rem;
+  padding: 6px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+}
+
+.export button {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #ddd;
+  border: 1px solid #2f2f2f;
+  cursor: pointer;
+  font-weight: 500;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.export button:hover {
+  background: #262626;
+  border-color: #3a3a3a;
+}
+
+.export button:active {
+  background: #1a1a1a;
+}
+
+
 /* Elements */
 .element {
   position: absolute;
   user-select: none;
+  transform-origin: center;
+  box-sizing: border-box;
 }
 
 /* Selection */

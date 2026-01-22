@@ -11,7 +11,9 @@
 
     <!-- Top Toolbar -->
     <header>
-        <h1>Frame</h1>
+        <h1>Frame
+            <h6> by <a href="https://github.com/adnanshakir">@adnanshakir</a></h6>
+        </h1>
     </header>
 
     <!-- Main Layout -->
@@ -27,17 +29,28 @@
         <section class="canvas-wrapper">
             <div id="canvas"></div>
 
+            <!-- Bottom tool dock -->
             <div class="dock">
                 <button id="tool-select">Select</button>
                 <span class="dock-divider"></span>
+
                 <button id="add-rect">Rectangle</button>
                 <button id="add-circle">Circle</button>
                 <button id="add-text">Text</button>
+
                 <span class="dock-divider"></span>
+
                 <button id="duplicate">Duplicate</button>
                 <button id="delete">Delete</button>
             </div>
+
+            <!-- Export (top-right, separate) -->
+            <div class="export">
+                <button id="export-json">Export JSON</button>
+                <button id="export-html">Export HTML</button>
+            </div>
         </section>
+
 
 
         <!-- Properties Panel -->
@@ -49,24 +62,30 @@
                 <input type="number" id="prop-width" />
             </label>
 
-            <label>
-                Corner
+            <!-- <label>
+                Border
                 <input type="number" id="prop-corner" />
-            </label>
+            </label> -->
 
             <label>
                 Height
                 <input type="number" id="prop-height" />
             </label>
 
-            <label>
-                Background
-                <input type="color" id="prop-bg" />
-            </label>
 
             <label id="text-prop">
                 Text
                 <input type="text" id="prop-text" />
+            </label>
+
+            <label id="text-prop">
+                Rotate
+                <input type="number" id="prop-rotate" />
+            </label>
+
+            <label id="prop-label">
+                Color
+                <input type="color" id="prop-bg" />
             </label>
         </aside>
 
